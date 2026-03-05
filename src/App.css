@@ -1,3 +1,41 @@
 .App {
   text-align: center;
+  display: flex;
+  justify-content: center;
+  padding-top: 16px;
+}
+
+.data-table {
+  flex: 0 0 auto;
+  border: 1px solid gray;
+  border-collapse: collapse;
+}
+
+.header {
+  cursor: pointer;
+}
+
+.row td, .row th {
+  border: 1px solid gray;
+  padding: 2px 8px;
+}
+
+.asset-Macro {
+  background-color: white;
+}
+
+.asset-Equities {
+  background-color: rgb(100, 100, 255);
+}
+
+.asset-Credit {
+  background-color: rgb(85, 175, 85);
+}
+
+.positive-price {
+  color: blue;
+}
+
+.negative-price {
+  color: red;
 }

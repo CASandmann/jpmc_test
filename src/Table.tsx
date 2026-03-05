@@ -1,5 +1,13 @@
+import { useCallback, useState } from "react";
+
 interface TableProps {
   data: Data[];
+}
+
+enum SortType {
+  AssetClass = "assetClass",
+  Price = "price",
+  Ticker = "ticker"
 }
 
 export interface Data {
@@ -15,10 +23,11 @@ export interface Data {
  */
 function Row(props: Data) {
   const { ticker, price, assetClass } = props;
+
   return (
-    <tr>
+    <tr className={`row asset-${assetClass}`}>
       <td>{assetClass}</td>
-      <td>{price}</td>
+      <td className={price >= 0 ? "positive-price" : "negative-price"}>{price}</td>
       <td>{ticker}</td>
     </tr>
   );
@@ -31,23 +40,46 @@ function Row(props: Data) {
  */
 export default function Table(props: TableProps) {
   const { data } = props;
+  const [ sort, setSort ] = useState<SortType>();
+
+  const clickAssetClass = useCallback(() => {
+    setSort(SortType.AssetClass);
+  }, []);
+  const clickPrice = useCallback(() => {
+    setSort(SortType.Price);
+  }, []);
+  const clickTicker = useCallback(() => {
+    setSort(SortType.Ticker);
+  }, []);
 
   if (!data.length) {
     return (
       <div>
         Loading...
       </div>
-    )
+    );
   }
+  
+  const sortedData = sort ? data.sort((a, b) => {
+    if (sort === SortType.AssetClass) {
+      if (a.assetClass === "Credit") return 1;
+      else if (b.assetClass === "Credit") return -1;
+      else if (a.assetClass === "Macro") return 1;
+      else if (b.assetClass === "Macro") return -1;
+    } else if (sort === SortType.Price) {
+      return b.price - a.price;
+    }// (sort === SortType.Ticker)
+    return a.ticker > b.ticker ? 1 : -1;
+  }) : data;
 
   return (
-    <table>
-      <tr>
-        <th>Asset Class</th>
-        <th>Price</th>
-        <th>Ticker</th>
+    <table className="data-table">
+      <tr className="header row">
+        <th onClick={clickAssetClass}>Asset Class</th>
+        <th onClick={clickPrice}>Price</th>
+        <th onClick={clickTicker}>Ticker</th>
       </tr>
-      {data.map((row) => (
+      {sortedData.map((row) => (
         <Row {...row} />
       ))}
     </table>
