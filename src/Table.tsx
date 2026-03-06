@@ -40,16 +40,28 @@ function Row(props: Data) {
  */
 export default function Table(props: TableProps) {
   const { data } = props;
-  const [ sort, setSort ] = useState<SortType>();
+  const [ sort, setSort ] = useState<SortType | null>(null);
 
   const clickAssetClass = useCallback(() => {
-    setSort(SortType.AssetClass);
-  }, []);
+    if (sort === SortType.AssetClass) {
+      setSort(null);
+    } else {
+      setSort(SortType.AssetClass);
+    }
+  }, [sort]);
   const clickPrice = useCallback(() => {
-    setSort(SortType.Price);
+    if (sort === SortType.Price) {
+      setSort(null);
+    } else {
+      setSort(SortType.Price);
+    }
   }, []);
   const clickTicker = useCallback(() => {
-    setSort(SortType.Ticker);
+    if (sort === SortType.Ticker) {
+      setSort(null);
+    } else {
+      setSort(SortType.Ticker);
+    }
   }, []);
 
   if (!data.length) {
@@ -60,7 +72,7 @@ export default function Table(props: TableProps) {
     );
   }
   
-  const sortedData = sort ? data.sort((a, b) => {
+  const sortedData = sort ? data.slice().sort((a, b) => {
     if (sort === SortType.AssetClass) {
       if (a.assetClass === "Credit") return 1;
       else if (b.assetClass === "Credit") return -1;
@@ -68,20 +80,24 @@ export default function Table(props: TableProps) {
       else if (b.assetClass === "Macro") return -1;
     } else if (sort === SortType.Price) {
       return b.price - a.price;
-    }// (sort === SortType.Ticker)
+    } // (sort === SortType.Ticker)
     return a.ticker > b.ticker ? 1 : -1;
   }) : data;
 
   return (
-    <table className="data-table">
-      <tr className="header row">
-        <th onClick={clickAssetClass}>Asset Class</th>
-        <th onClick={clickPrice}>Price</th>
-        <th onClick={clickTicker}>Ticker</th>
-      </tr>
-      {sortedData.map((row) => (
-        <Row {...row} />
-      ))}
+    <table className="data-table" data-testid="data-table">
+      <thead>
+        <tr className="header row">
+          <th onClick={clickAssetClass}>Asset Class{sort === SortType.AssetClass ? " ↓" : ""}</th>
+          <th onClick={clickPrice}>Price{sort === SortType.Price ? " ↓" : ""}</th>
+          <th onClick={clickTicker}>Ticker{sort === SortType.Ticker ? " ↓" : ""}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {sortedData.map((row) => (
+          <Row key={row.ticker} {...row} />
+        ))}
+      </tbody>
     </table>
   );
 }
